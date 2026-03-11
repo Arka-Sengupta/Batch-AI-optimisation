@@ -1,0 +1,44 @@
+{
+    "metadata": {
+        "timestamp": "2026-03-11T16:11:51.495693",
+        "batch_id": "BATCH-001"
+    },
+    "form_data": {
+        "batch_id": "BATCH-001",
+        "granulation_time": "18",
+        "machine_speed": "150",
+        "compression_force": "12.5",
+        "drying_temp": "60",
+        "drying_time": "25",
+        "binder_amount": "8.5",
+        "lubricant_conc": "1.0",
+        "tablet_weight": "200",
+        "moisture_content": "2.1",
+        "room_temperature": "22",
+        "room_humidity": "45"
+    },
+    "sensor_data": {
+        "temperature_sensors": {
+            "Temperature_C_mean": 36.5,
+            "Temperature_C_max": 68.2,
+            "Temperature_C_min": 22.1,
+            "Temperature_C_std": 11.4
+        },
+        "pressure_sensors": {
+            "Pressure_Bar_mean": 1.02
+        },
+        "motor_sensors": {
+            "Motor_Speed_RPM_max": 895.0,
+            "Compression_Force_kN_max": 14.2,
+            "Flow_Rate_LPM_mean": 1.8
+        },
+        "power_sensors": {
+            "Power_Consumption_kW_max": 62.5
+        },
+        "vibration_sensors": {
+            "Vibration_mm_s_mean": 2.8,
+            "Vibration_mm_s_max": 8.5,
+            "Vibration_mm_s_std": 1.9
+        }
+    }
+}
