@@ -9,8 +9,12 @@
     "Pressure_Bar_mean": 1.02
   },
   "motor_sensors": {
-    "Motor_Speed_RPM_max": 895.0,
-    "Compression_Force_kN_max": 14.2,
+    "Motor_Speed_RPM_max": 895.0
+  },
+  "compression_sensors": {
+    "Compression_Force_kN_max": 14.2
+  },
+  "flow_sensors": {
     "Flow_Rate_LPM_mean": 1.8
   },
   "power_sensors": {
