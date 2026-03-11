@@ -4,18 +4,15 @@ export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
 
-  const [batchData, setBatchData] = useState(null);
-  const [prediction, setPrediction] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
+  const [formDataPayload, setFormDataPayload] = useState(null);
+  const [mlResponse, setMlResponse] = useState(null);
 
   return (
     <DataContext.Provider value={{
-      batchData,
-      setBatchData,
-      prediction,
-      setPrediction,
-      recommendations,
-      setRecommendations
+      formDataPayload,
+      setFormDataPayload,
+      mlResponse,
+      setMlResponse
     }}>
       {children}
     </DataContext.Provider>

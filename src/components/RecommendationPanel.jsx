@@ -1,101 +1,80 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { DataContext } from "../context/DataContext";
-import { getRecommendations } from "../api/api";
 
-export default function RecommendationPanel(){
+export default function RecommendationPanel() {
+  const { mlResponse } = useContext(DataContext);
 
- const { batchData, recommendations, setRecommendations } = useContext(DataContext);
- const [isLoading, setIsLoading] = useState(false);
- const [error, setError] = useState(null);
+  if (!mlResponse) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 h-full flex items-center justify-center">
+        <div className="text-center">
+           <span className="text-4xl">🤖</span>
+           <p className="text-gray-500 mt-4 text-center">Run the AI Prediction on the left to see parameter adjustments required to hit Pareto Optimality.</p>
+        </div>
+      </div>
+    );
+  }
 
- if(!batchData) return null;
+  const recommendations = mlResponse.recommendations || [];
 
- const loadRecommendations = async () => {
-   setIsLoading(true);
-   setError(null);
-   
-   try {
-     const res = await getRecommendations(batchData.batch_id);
-     setRecommendations(res.recommendations);
-   } catch (error) {
-     setError('Failed to get recommendations. Please check your backend connection.');
-     console.error('Recommendations failed:', error);
-   } finally {
-     setIsLoading(false);
-   }
- };
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 flex flex-col h-full">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-indigo-900 mb-2">Target Adjustments</h2>
+        <p className="text-gray-600">Model recommended adjustments to reach the Golden Signature target parameters</p>
+      </div>
 
- return(
-  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      {recommendations.length > 0 ? (
+        <div className="mt-2 space-y-4 flex-grow">
+          
+          <div className="overflow-x-auto border rounded-lg shadow-sm">
+             <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                   <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parameter</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Target</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                   </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                   {recommendations.map((rec, idx) => (
+                      <tr key={idx} className="hover:bg-indigo-50 transition-colors">
+                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{rec.parameter.replace(/_/g, " ")}</td>
+                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{rec.current}</td>
+                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">{rec.recommended}</td>
+                         <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {rec.direction === 'increase' ? (
+                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  ▲ +{Math.abs(rec.change).toFixed(2)}
+                               </span>
+                            ) : (
+                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  ▼ -{Math.abs(rec.change).toFixed(2)}
+                               </span>
+                            )}
+                         </td>
+                      </tr>
+                   ))}
+                </tbody>
+             </table>
+          </div>
 
-    <div className="mb-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Recommendations</h2>
-      <p className="text-gray-600">Optimization suggestions based on batch analysis</p>
-    </div>
-
-    <button 
-      onClick={loadRecommendations}
-      disabled={isLoading}
-      className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-    >
-      {isLoading ? (
-        <>
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Generating Recommendations...
-        </>
+          <div className="mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-lg">
+            <h4 className="font-semibold text-indigo-900 flex items-center mb-2">
+               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               NSGA-II Pareto Front Report
+            </h4>
+            <p className="text-sm text-indigo-800 leading-relaxed">
+              These adjustments were identified by matching your current processing configuration against the most dominant non-dominated solution sets (Pareto Fronts) that successfully reduced Carbon Footprint and Energy Consumption while boosting Quality in historical traces.
+            </p>
+          </div>
+        </div>
       ) : (
-        <>
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          Get AI Recommendations
-        </>
+        <div className="p-4 bg-green-50 text-green-700 rounded-lg font-semibold flex items-center mt-4 border border-green-200 shadow-sm">
+          <span className="text-2xl mr-3">🎉</span> Great job! Your parameters are extremely close to the NSGA Pareto targets. No major adjustments required.
+        </div>
       )}
-    </button>
-
-    {error && (
-      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-700 text-sm">{error}</p>
-      </div>
-    )}
-
-    {recommendations.length > 0 && (
-      <div className="mt-6 space-y-3">
-        
-        <div className="flex items-center mb-4">
-          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900">Optimization Suggestions</h3>
-        </div>
-
-        {recommendations.map((recommendation, index) => (
-          <div 
-            key={index}
-            className="flex items-start p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-100 hover:from-amber-100 hover:to-orange-100 transition-colors duration-200"
-          >
-            <div className="flex-shrink-0 w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center mr-3 mt-0.5">
-              <span className="text-xs font-bold text-amber-800">{index + 1}</span>
-            </div>
-            <p className="text-gray-700 leading-relaxed">{recommendation}</p>
-          </div>
-        ))}
-
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">AI Analysis:</span> These recommendations are generated based on historical batch data and optimal parameter ranges.
-          </p>
-        </div>
-
-      </div>
-    )}
-
-  </div>
- );
-
+    </div>
+  );
 }

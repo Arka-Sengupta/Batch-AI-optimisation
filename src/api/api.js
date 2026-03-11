@@ -2,22 +2,16 @@ import axios from "axios";
 
 const API = "http://localhost:8000/api";
 
-export const getPrediction = async (data) => {
+export const analyzeBatch = async (formData) => {
   try {
-    const res = await axios.post(`${API}/predict`, data);
+    const res = await axios.post(`${API}/analyze`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return res.data;
   } catch (error) {
-    console.error('Prediction API error:', error);
-    throw error;
-  }
-};
-
-export const getRecommendations = async (batchId) => {
-  try {
-    const res = await axios.get(`${API}/recommendations/${batchId}`);
-    return res.data;
-  } catch (error) {
-    console.error('Recommendations API error:', error);
+    console.error('Analyze API error:', error);
     throw error;
   }
 };
